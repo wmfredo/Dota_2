@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Analiza los héroes más jugados recientemente por un jugador de Dota 2." />
+    <title>Matchline | Perfil reciente de Dota 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js?v=2" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="Matchline inicio">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>matchline</span>
+        </a>
+        <span class="header-note">DOTA 2 / PLAYER READOUT</span>
+      </header>
+
+      <main>
+        <section class="intro" aria-labelledby="page-title">
+          <p class="eyebrow">OpenDota intelligence <span class="eyebrow-line"></span></p>
+          <h1 id="page-title">Tu forma reciente,<br /><em>en cinco héroes.</em></h1>
+          <p class="intro-copy">Una lectura rápida de tus últimas partidas para ver dónde se concentra tu tiempo de juego y cómo está rindiendo cada elección.</p>
+
+          <form id="player-form" class="lookup-form" novalidate>
+            <label for="account-id">Nombre o Steam32 account ID</label>
+            <div class="input-row">
+              <input id="account-id" name="playerQuery" type="text" autocomplete="off" placeholder="Ej. Lord_Fredo o 123456789" required aria-describedby="input-help form-message" />
+              <button type="submit" id="submit-button">
+                <span>Analizar perfil</span>
+                <span class="button-arrow" aria-hidden="true">&#8599;</span>
+              </button>
+            </div>
+            <p id="input-help" class="field-help">Acepta el nombre exacto del perfil o su account ID. Usamos las 20 partidas más recientes.</p>
+            <p id="form-message" class="form-message" role="alert" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section id="status-panel" class="status-panel" hidden aria-live="polite">
+          <span class="loader" aria-hidden="true"></span>
+          <div>
+            <strong id="status-title">Leyendo perfil</strong>
+            <p id="status-detail">Consultando tus datos recientes en OpenDota.</p>
+          </div>
+        </section>
+
+        <section id="results" class="results" hidden aria-labelledby="results-title">
+          <div class="profile-bar">
+            <div class="profile-identity">
+              <img id="player-avatar" class="avatar" alt="" hidden />
+              <div class="avatar-fallback" id="avatar-fallback" aria-hidden="true">?</div>
+              <div>
+                <p class="eyebrow eyebrow-small">Perfil analizado</p>
+                <h2 id="player-name">Jugador de Dota 2</h2>
+              </div>
+            </div>
+            <div class="profile-stats">
+              <div><span class="stat-label">Muestra</span><strong id="matches-count">0</strong><span>partidas</span></div>
+              <div><span class="stat-label">Actualizado</span><strong id="updated-time">Ahora</strong></div>
+            </div>
+          </div>
+
+          <div class="results-heading">
+            <div>
+              <p class="eyebrow eyebrow-small">Selecciones principales</p>
+              <h2 id="results-title">Tus cinco héroes más jugados</h2>
+            </div>
+            <p class="results-method">Ordenado por apariciones<br />en la muestra reciente</p>
+          </div>
+
+          <div id="hero-list" class="hero-list"></div>
+          <p class="data-note"><span aria-hidden="true">i</span> El porcentaje de victoria es descriptivo: una muestra de 20 partidas puede cambiar rápidamente.</p>
+        </section>
+
+        <section id="empty-state" class="empty-state" hidden aria-live="polite">
+          <span class="empty-icon" aria-hidden="true">—</span>
+          <h2>No hay partidas para mostrar</h2>
+          <p>OpenDota todavía no tiene partidas recientes procesadas para este perfil.</p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span>DATOS DE OPENDOTA</span>
+        <a href="https://docs.opendota.com/" target="_blank" rel="noreferrer">Ver documentación <span aria-hidden="true">&#8599;</span></a>
+      </footer>
+    </div>
+  </body>
+</html>
