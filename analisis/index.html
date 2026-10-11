@@ -20,36 +20,23 @@
         </a>
         <nav class="top-nav" aria-label="Navegación principal">
           <a class="nav-button active" href="./index.html">Análisis</a>
-          <a class="nav-button" href="../social.html">Social</a>
+          <a class="nav-button" href="../social/index.html">Social</a>
         </nav>
       </header>
 
       <main>
         <section class="intro" aria-labelledby="page-title">
-          <p class="eyebrow">OpenDota intelligence <span class="eyebrow-line"></span></p>
-          <h1 id="page-title">Tu forma reciente,<br /><em>en cinco héroes.</em></h1>
-          <p class="intro-copy">Una lectura rápida de tus últimas partidas para ver dónde se concentra tu tiempo de juego y cómo está rindiendo cada elección.</p>
-
+          <h1 id="page-title">Analiza un perfil de Dota 2</h1>
           <form id="player-form" class="lookup-form" novalidate>
-            <label for="account-id">Nombre o Steam32 account ID</label>
+            <label for="account-id">Ingresa tu nombre o ID de Steam</label>
             <div class="input-row">
-              <input id="account-id" name="playerQuery" type="text" autocomplete="off" placeholder="Ej. Lord_Fredo o 123456789" required aria-describedby="input-help form-message" />
+              <input id="account-id" name="playerQuery" type="text" autocomplete="off" placeholder="Ej. Player_Name o 123456789" required aria-describedby="input-help form-message" />
               <button type="submit" id="submit-button">
                 <span>Analizar perfil</span>
                 <span class="button-arrow" aria-hidden="true">&#8599;</span>
               </button>
             </div>
-            <p id="input-help" class="field-help">Acepta el nombre exacto del perfil o su account ID. Usamos las 20 partidas más recientes.</p>
-            <p id="form-message" class="form-message" role="alert" aria-live="polite"></p>
           </form>
-        </section>
-
-        <section id="status-panel" class="status-panel" hidden aria-live="polite">
-          <span class="loader" aria-hidden="true"></span>
-          <div>
-            <strong id="status-title">Leyendo perfil</strong>
-            <p id="status-detail">Consultando tus datos recientes en OpenDota.</p>
-          </div>
         </section>
 
         <section id="results" class="results" hidden aria-labelledby="results-title">
