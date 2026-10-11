@@ -31,7 +31,17 @@
                 <span class="button-arrow" aria-hidden="true">&#8599;</span>
               </button>
             </div>
+            <p id="input-help" class="field-help">Escribe el nombre exacto del perfil o su ID de Steam32.</p>
+            <p id="form-message" class="form-message" role="alert" aria-live="polite"></p>
           </form>
+        </section>
+
+        <section id="status-panel" class="status-panel" hidden aria-live="polite">
+          <span class="loader" aria-hidden="true"></span>
+          <div>
+            <strong id="status-title">Buscando jugador</strong>
+            <p id="status-detail">Consultando el perfil.</p>
+          </div>
         </section>
 
         <section id="results" class="results" hidden aria-labelledby="results-title">
