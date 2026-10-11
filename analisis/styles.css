@@ -71,7 +71,8 @@ a { color: inherit; }
   padding: 14px 18px;
   transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, text-shadow .2s ease;
 }
-.nav-button:hover {
+.nav-button:hover,
+.nav-button.active {
   background: linear-gradient(180deg, #ff8d3d 0%, #e64a22 100%);
   border-color: rgba(255, 191, 134, 0.96);
   box-shadow: 0 0 18px rgba(255, 123, 55, 0.4), 0 14px 28px rgba(214, 58, 31, 0.28);
@@ -322,6 +323,157 @@ button:disabled { cursor: wait; opacity: .65; transform: none; }
   color: var(--orange);
 }
 
+.landing-page {
+  min-height: 100vh;
+}
+
+.landing-page .page-shell {
+  max-width: 1400px;
+  padding: 0 32px 32px;
+}
+
+.landing-header {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.home-nav {
+  margin-left: auto;
+}
+
+.front-hero {
+  padding-top: 20px;
+}
+
+.hero-art {
+  position: relative;
+  overflow: hidden;
+  min-height: 780px;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 120, 40, 0.34), transparent 18%),
+    radial-gradient(circle at 30% 25%, rgba(66, 159, 255, 0.18), transparent 20%),
+    linear-gradient(180deg, rgba(5, 7, 10, 0.9), rgba(3, 6, 10, 0.96));
+  border: 6px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 20px 40px rgba(0, 0, 0, 0.42);
+}
+
+.hero-art::before,
+.hero-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-art::before {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(95, 182, 255, 0.18), transparent 18%),
+    radial-gradient(circle at 80% 30%, rgba(255, 115, 54, 0.18), transparent 18%),
+    radial-gradient(circle at 50% 80%, rgba(255, 94, 56, 0.14), transparent 24%);
+}
+
+.hero-art::after {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.3));
+}
+
+.hero-copy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 2;
+}
+
+.clan-tag {
+  color: #f3f6ff;
+  font-family: "DM Mono", monospace;
+  font-size: clamp(20px, 2vw, 34px);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255, 138, 80, 0.55);
+  margin-bottom: 10px;
+}
+
+.ratoger-word {
+  position: relative;
+  font-size: clamp(110px, 18vw, 340px);
+  line-height: 0.8;
+  letter-spacing: -0.09em;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: rgba(243, 246, 255, 0.96);
+  text-shadow:
+    0 0 18px rgba(80, 179, 255, 0.32),
+    0 0 30px rgba(255, 102, 42, 0.26),
+    0 10px 0 rgba(148, 36, 18, 0.9);
+  transform: scaleY(0.9);
+}
+
+.ratoger-word::before {
+  content: "RATOGER";
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 130, 72, 0.65);
+  filter: drop-shadow(0 0 16px rgba(255, 120, 50, 0.7));
+  z-index: -1;
+}
+
+.hero-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: 170px;
+  height: 170px;
+  border: 10px solid rgba(255, 223, 175, 0.6);
+  background: linear-gradient(135deg, #ff8d3d 0%, #d93a20 100%);
+  box-shadow: 0 0 26px rgba(255, 120, 58, 0.5);
+  display: grid;
+  place-items: center;
+  clip-path: polygon(50% 0%, 100% 22%, 100% 78%, 50% 100%, 0% 78%, 0% 22%);
+}
+
+.hero-badge::before {
+  content: "D";
+  color: #f8f2eb;
+  font-size: 92px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.social-shell {
+  padding-top: 36px;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.social-card {
+  background: rgba(15, 21, 29, 0.88);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.24);
+  padding: 26px 22px;
+}
+
+.social-card h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  letter-spacing: -.05em;
+}
+
+.social-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 @media (max-width: 720px) {
   .page-shell { padding: 0 20px; }
   .site-header { flex-direction: column; align-items: flex-start; gap: 14px; }
@@ -347,4 +499,7 @@ button:disabled { cursor: wait; opacity: .65; transform: none; }
   .hero-rank { grid-column: 1; grid-row: 1 / 3; }
   .page-hero, .content-grid, .stat-grid { grid-template-columns: 1fr; }
   .page-main { padding-top: 48px; }
+  .hero-art { min-height: 560px; }
+  .ratoger-word { font-size: clamp(72px, 23vw, 180px); }
+  .social-grid { grid-template-columns: 1fr; }
 }
