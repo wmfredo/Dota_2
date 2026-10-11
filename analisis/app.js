@@ -1,5 +1,6 @@
 const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJTdWJqZWN0IjoiMDAwYWNjNWItMzQxOC00NWEwLTkwZGEtNGJlOWQ5NThlMzhjIiwiU3RlYW1JZCI6Ijg0OTI3NDE3IiwiQVBJVXNlciI6InRydWUiLCJuYmYiOjE3OTE3MzYxMzksImV4cCI6MTgyMzI3MjEzOSwiaWF0IjoxNzkxNzM2MTM5LCJpc3MiOiJodHRwczovL2FwaS5zdHJhdHouY29tIn0.B-TVkY7N14TUJGDmhSctbMiSxD_I8RceBxiwsLUK_Ew";
 const API_BASE = "https://api.stratz.com";
+const OPEN_DOTA_BASE = "https://api.opendota.com/api";
 const RECENT_MATCH_LIMIT = 20;
 
 const form = document.querySelector("#player-form");
@@ -34,12 +35,26 @@ async function loadPlayer(query) {
 
   try {
     const accountId = await resolveAccountId(query);
-    setStatus("Leyendo perfil", "Consultando tus datos recientes en Stratz.");
-    const [profile, matches, heroes] = await Promise.all([
-      fetchStratzPlayer(accountId),
-      fetchStratzMatches(accountId),
-      fetchStratzHeroes()
-    ]);
+
+    let profile;
+    let matches;
+    let heroes;
+
+    try {
+      setStatus("Leyendo perfil", "Consultando tus datos recientes en Stratz.");
+      [profile, matches, heroes] = await Promise.all([
+        fetchStratzPlayer(accountId),
+        fetchStratzMatches(accountId),
+        fetchStratzHeroes()
+      ]);
+    } catch (stratzError) {
+      setStatus("Usando respaldo público", "Stratz rechazó la consulta; usando OpenDota para completar la búsqueda.");
+      [profile, matches, heroes] = await Promise.all([
+        fetchOpenDotaPlayer(accountId),
+        fetchOpenDotaMatches(accountId),
+        fetchOpenDotaHeroes()
+      ]);
+    }
 
     const heroIndex = new Map(heroes.map((hero) => [Number(hero.id), hero]));
     const topHeroes = aggregateHeroes(matches, heroIndex);
@@ -62,18 +77,33 @@ async function loadPlayer(query) {
 async function resolveAccountId(query) {
   if (/^\d+$/.test(query) && Number(query) > 0) return query;
 
-  const searchResults = await searchPlayers(query);
+  try {
+    const searchResults = await searchPlayers(query);
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    const exactMatch = searchResults.find((player) => {
+      const names = [player.personaname, player.name, player.steamAccount?.name].filter(Boolean);
+      return names.some((name) => String(name).trim().toLocaleLowerCase() === normalizedQuery);
+    });
+
+    if (exactMatch) {
+      return String(exactMatch.account_id || exactMatch.accountId || exactMatch.id || "");
+    }
+  } catch (error) {
+    // Stratz no pudo devolver coincidencias; intentamos el buscador público.
+  }
+
+  const fallbackSearch = await fetchOpenDotaJson(`/search?q=${encodeURIComponent(query)}`);
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const exactMatch = searchResults.find((player) => {
-    const names = [player.personaname, player.name, player.steamAccount?.name].filter(Boolean);
+  const exactMatch = Array.isArray(fallbackSearch) ? fallbackSearch.find((player) => {
+    const names = [player.personaname, player.name].filter(Boolean);
     return names.some((name) => String(name).trim().toLocaleLowerCase() === normalizedQuery);
-  });
+  }) : null;
 
   if (!exactMatch) {
     throw new Error("No encontramos una coincidencia exacta para ese nombre de jugador.");
   }
 
-  return String(exactMatch.account_id || exactMatch.accountId || exactMatch.id || "");
+  return String(exactMatch.account_id);
 }
 
 async function fetchJson(path, options = {}) {
@@ -92,6 +122,16 @@ async function fetchJson(path, options = {}) {
     throw new Error("Stratz no pudo responder. Inténtalo de nuevo más tarde.");
   }
 
+  return response.json();
+}
+
+async function fetchOpenDotaJson(path) {
+  const response = await fetch(`${OPEN_DOTA_BASE}${path}`);
+  if (!response.ok) {
+    if (response.status === 429) throw new Error("OpenDota está limitando consultas. Espera un momento e inténtalo de nuevo.");
+    if (response.status === 404) throw new Error("No encontramos ese perfil en OpenDota.");
+    throw new Error("OpenDota no pudo responder. Inténtalo de nuevo más tarde.");
+  }
   return response.json();
 }
 
@@ -178,6 +218,21 @@ async function fetchStratzHeroes() {
   }
 
   return [];
+}
+
+async function fetchOpenDotaPlayer(accountId) {
+  const profile = await fetchOpenDotaJson(`/players/${accountId}`);
+  return profile;
+}
+
+async function fetchOpenDotaMatches(accountId) {
+  const matches = await fetchOpenDotaJson(`/players/${accountId}/matches?limit=${RECENT_MATCH_LIMIT}`);
+  return matches;
+}
+
+async function fetchOpenDotaHeroes() {
+  const heroes = await fetchOpenDotaJson("/heroes");
+  return heroes;
 }
 
 function normalizeSearchResults(payload) {
