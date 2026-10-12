@@ -31,7 +31,6 @@
                 <span class="button-arrow" aria-hidden="true">&#8599;</span>
               </button>
             </div>
-            <p id="input-help" class="field-help">Escribe el nombre exacto del perfil o su ID de Steam32.</p>
             <p id="form-message" class="form-message" role="alert" aria-live="polite"></p>
           </form>
         </section>
@@ -62,20 +61,18 @@
 
           <div class="results-heading">
             <div>
-              <p class="eyebrow eyebrow-small">Selecciones principales</p>
-              <h2 id="results-title">Tus cinco héroes más jugados</h2>
+              <p class="eyebrow eyebrow-small">Partidas recientes</p>
+              <h2 id="results-title">Resultados de las últimas partidas</h2>
             </div>
-            <p class="results-method">Ordenado por apariciones<br />en la muestra reciente</p>
           </div>
 
-          <div id="hero-list" class="hero-list"></div>
-          <p class="data-note"><span aria-hidden="true">i</span> El porcentaje de victoria es descriptivo: una muestra de 20 partidas puede cambiar rápidamente.</p>
+          <div id="match-list" class="match-list" aria-live="polite"></div>
         </section>
 
         <section id="empty-state" class="empty-state" hidden aria-live="polite">
           <span class="empty-icon" aria-hidden="true">—</span>
           <h2>No hay partidas para mostrar</h2>
-          <p>OpenDota todavía no tiene partidas recientes procesadas para este perfil.</p>
+          <p>No hay partidas recientes procesadas para este perfil.</p>
         </section>
       </main>
 
