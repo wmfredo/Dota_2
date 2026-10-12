@@ -20,7 +20,7 @@ La aplicación consulta la API de [Stratz](https://stratz.com/api) usando el tok
 - `/api/v1/players/{account_id}/matches?take=5` para las partidas recientes.
 - `/api/v1/search?query={nombre}` o rutas equivalentes para resolver un nombre exacto a su account ID.
 
-Puedes introducir el Steam32/account ID numérico, el SteamID64 no está soportado, o el nombre exacto visible en Stratz. La búsqueda por nombre ignora mayúsculas y espacios exteriores, pero no acepta coincidencias parciales. Para cada partida se determina el resultado comparando el lado del jugador (`player_slot`) con `radiant_win`.
+Puedes introducir el Steam32/account ID numérico, el SteamID64 no está soportado, o el nombre exacto visible en Stratz. La búsqueda por nombre ignora mayúsculas y espacios exteriores, pero no acepta coincidencias parciales. La tabla muestra héroe, resultado, K/D/A y duración de cada partida reciente.
 
 ## Limitaciones conocidas
 

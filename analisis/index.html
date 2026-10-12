@@ -60,11 +60,24 @@
           <div class="results-heading">
             <div>
               <p class="eyebrow">Partidas recientes</p>
-              <h2 id="results-title">Resultados de las últimas partidas</h2>
+              <h2 id="results-title">Últimas partidas</h2>
             </div>
           </div>
 
-          <div id="match-list" class="match-list" aria-live="polite"></div>
+          <div class="match-table-wrap" role="region" aria-label="Tabla de últimas partidas" tabindex="0">
+            <table class="match-table">
+              <thead>
+                <tr>
+                  <th scope="col">Héroe</th>
+                  <th scope="col">Resultado</th>
+                  <th scope="col">K/D/A</th>
+                  <th scope="col">Duración</th>
+                  <th scope="col">Valoración</th>
+                </tr>
+              </thead>
+              <tbody id="match-list" aria-live="polite"></tbody>
+            </table>
+          </div>
         </section>
 
         <section id="empty-state" class="empty-state" hidden aria-live="polite">

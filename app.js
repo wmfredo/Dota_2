@@ -38,17 +38,20 @@ async function loadPlayer(query) {
 
     let profile;
     let matches;
+    let heroes;
     try {
       setStatus("Leyendo perfil", "Consultando tus datos recientes en Stratz.");
-      [profile, matches] = await Promise.all([
+      [profile, matches, heroes] = await Promise.all([
         fetchStratzPlayer(accountId),
-        fetchStratzMatches(accountId)
+        fetchStratzMatches(accountId),
+        fetchHeroCatalog()
       ]);
     } catch (stratzError) {
       setStatus("Usando respaldo público", "Stratz rechazó la consulta; usando OpenDota para completar la búsqueda.");
-      [profile, matches] = await Promise.all([
+      [profile, matches, heroes] = await Promise.all([
         fetchOpenDotaPlayer(accountId),
-        fetchOpenDotaMatches(accountId)
+        fetchOpenDotaMatches(accountId),
+        fetchHeroCatalog()
       ]);
     }
 
@@ -58,7 +61,7 @@ async function loadPlayer(query) {
       return;
     }
 
-    renderProfile(profile, recentMatches);
+    renderProfile(profile, recentMatches, new Map(heroes.map((hero) => [hero.id, hero])));
     results.hidden = false;
   } catch (error) {
     formMessage.textContent = error.message || "No pudimos leer este perfil ahora.";
@@ -184,6 +187,24 @@ async function fetchStratzMatches(accountId) {
   return [];
 }
 
+async function fetchHeroCatalog() {
+  const paths = ["/api/v1/heroes", "/api/v1/Heroes", "/api/v1/hero"];
+  for (const path of paths) {
+    try {
+      const heroes = normalizeHeroes(await fetchJson(path));
+      if (heroes.length) return heroes;
+    } catch (error) {
+      // Intenta la siguiente ruta disponible.
+    }
+  }
+
+  try {
+    return normalizeHeroes(await fetchOpenDotaJson("/heroes"));
+  } catch (error) {
+    return [];
+  }
+}
+
 async function fetchOpenDotaPlayer(accountId) {
   const profile = await fetchOpenDotaJson(`/players/${accountId}`);
   return profile;
@@ -224,19 +245,56 @@ function normalizeProfile(payload) {
 
 function normalizeMatches(payload) {
   const list = normalizeArray(payload);
-  return list.map((match) => ({
-    ...match,
-    player_slot: match.player_slot ?? match.playerSlot ?? match.player_slot_id ?? null,
-    radiant_win: match.radiant_win ?? match.radiantWin ?? match.radiant ?? null,
-    win: match.win ?? match.isWin ?? match.isVictory ?? null
-  }));
+  return list.map((match) => {
+    const stats = match.player || match.stats || {};
+    return {
+      ...match,
+      hero_id: match.hero_id ?? match.heroId ?? match.hero?.id ?? null,
+      player_slot: match.player_slot ?? match.playerSlot ?? match.player_slot_id ?? null,
+      radiant_win: match.radiant_win ?? match.radiantWin ?? match.radiant ?? null,
+      win: match.win ?? match.isWin ?? match.isVictory ?? null,
+      kills: match.kills ?? stats.kills ?? null,
+      deaths: match.deaths ?? stats.deaths ?? null,
+      assists: match.assists ?? stats.assists ?? null,
+      duration: match.duration ?? match.durationSeconds ?? null
+    };
+  });
+}
+
+function normalizeHeroes(payload) {
+  return normalizeArray(payload).map((hero) => {
+    const data = hero.hero || hero;
+    return {
+      id: Number(data.id ?? data.heroId ?? data.hero_id),
+      name: data.localized_name || data.localizedName || data.name || "Héroe desconocido",
+      shortName: data.shortName || data.short_name || data.name || "",
+      image: getHeroImage(data)
+    };
+  }).filter((hero) => Number.isInteger(hero.id));
+}
+
+function getHeroImage(hero) {
+  const source = hero.icon || hero.iconUrl || hero.img || hero.image || hero.imageUrl;
+  if (source) {
+    try {
+      const url = new URL(source, "https://cdn.cloudflare.steamstatic.com");
+      if (url.protocol === "https:") return url.href;
+    } catch (error) {
+      // Usa el nombre interno para generar una URL conocida.
+    }
+  }
+
+  const shortName = String(hero.shortName || hero.name || "").replace(/^npc_dota_hero_/, "");
+  return /^[a-z0-9_]+$/i.test(shortName)
+    ? `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${shortName.toLowerCase()}.png`
+    : "";
 }
 
 function normalizeArray(payload) {
   if (Array.isArray(payload)) return payload;
   if (!payload || typeof payload !== "object") return [];
 
-  const nested = ["result", "results", "data", "items", "list", "players", "matches"]
+  const nested = ["result", "results", "data", "items", "list", "heroes", "players", "matches"]
     .map((key) => payload[key])
     .find((value) => Array.isArray(value));
 
@@ -261,7 +319,43 @@ function isPlayerWin(match) {
   return isRadiant === radiantWon;
 }
 
-function renderProfile(profile, matches) {
+function formatKda(match) {
+  const values = [match.kills, match.deaths, match.assists];
+  return values.every((value) => value != null && Number.isFinite(Number(value)))
+    ? values.join("/")
+    : "No disponible";
+}
+
+function formatDuration(duration) {
+  const seconds = Number(duration);
+  if (!Number.isFinite(seconds) || seconds < 0) return "No disponible";
+  return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+}
+
+function getMatchReview(match, won) {
+  const kills = Number(match.kills);
+  const deaths = Number(match.deaths);
+  const assists = Number(match.assists);
+  const hasKda = [match.kills, match.deaths, match.assists]
+    .every((value) => value != null && Number.isFinite(Number(value)));
+  const result = won === null ? "Resultado no disponible" : won ? "Victoria" : "Derrota";
+  const summary = `${result} · K/D/A ${formatKda(match)} · ${formatDuration(match.duration)}`;
+  const improvements = [
+    hasKda && deaths >= 6
+      ? "Reduce muertes: evita iniciar sin visión y espera a que tu equipo pueda seguirte."
+      : "Antes de avanzar, comprueba el minimapa y evita pelear en inferioridad.",
+    hasKda && assists < kills
+      ? "Tras ganar un duelo, busca una rotación que convierta la ventaja en objetivo."
+      : "Después de una pelea favorable, coordina con tu equipo para asegurar un objetivo.",
+    won === false
+      ? "Tras una pelea perdida, reagrúpate y prioriza una zona de farmeo segura."
+      : "Reserva tus habilidades clave para la siguiente pelea importante."
+  ];
+
+  return { summary, improvements };
+}
+
+function renderProfile(profile, matches, heroNames) {
   const profileData = profile.profile || {};
   const displayName = profileData.personaname || profileData.name || "Jugador de Dota 2";
   const avatar = profileData.avatarfull || profileData.avatarmedium || profileData.avatar;
@@ -279,19 +373,75 @@ function renderProfile(profile, matches) {
     document.querySelector("#avatar-fallback").hidden = true;
   }
 
-  matchList.replaceChildren(...matches.map((match, index) => {
+  matchList.replaceChildren(...matches.flatMap((match, index) => {
     const won = isPlayerWin(match);
-    const row = document.createElement("div");
-    row.className = "match-row";
-    const number = document.createElement("span");
-    number.className = "match-index";
-    number.textContent = String(index + 1).padStart(2, "0");
+    const heroData = match.hero && typeof match.hero === "object" ? match.hero : heroNames.get(Number(match.hero_id));
+    const hero = heroData?.localizedName || heroData?.localized_name || heroData?.name;
+    const heroIcon = getHeroImage(heroData || {});
+    const cells = [
+      [won === null ? "No disponible" : won ? "Victoria" : "Derrota", `match-result ${won === null ? "unknown" : won ? "win" : "loss"}`],
+      [formatKda(match), ""],
+      [formatDuration(match.duration), ""]
+    ];
+    const row = document.createElement("tr");
+    const heroCell = document.createElement("td");
+    heroCell.className = "match-hero";
+    if (heroIcon) {
+      const image = document.createElement("img");
+      image.className = "match-hero-icon";
+      image.src = heroIcon;
+      image.alt = "";
+      image.loading = "lazy";
+      heroCell.append(image);
+    }
+    const heroName = document.createElement("span");
+    heroName.textContent = hero || "Héroe desconocido";
+    heroCell.append(heroName);
+    row.append(heroCell);
+    for (const [value, className] of cells) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      if (className) cell.className = className;
+      row.append(cell);
+    }
 
-    const result = document.createElement("strong");
-    result.className = `match-result ${won === null ? "unknown" : won ? "win" : "loss"}`;
-    result.textContent = won === null ? "Resultado no disponible" : won ? "Victoria" : "Derrota";
-    row.append(number, result);
-    return row;
+    const actionCell = document.createElement("td");
+    const reviewId = `match-review-${index + 1}`;
+    const reviewToggle = document.createElement("button");
+    reviewToggle.className = "review-toggle";
+    reviewToggle.type = "button";
+    reviewToggle.textContent = "Valoración";
+    reviewToggle.setAttribute("aria-expanded", "false");
+    reviewToggle.setAttribute("aria-controls", reviewId);
+    actionCell.append(reviewToggle);
+    row.append(actionCell);
+
+    const review = getMatchReview(match, won);
+    const reviewRow = document.createElement("tr");
+    reviewRow.className = "review-row";
+    reviewRow.hidden = true;
+    const reviewCell = document.createElement("td");
+    reviewCell.colSpan = 5;
+    reviewCell.id = reviewId;
+    const summary = document.createElement("p");
+    summary.className = "review-summary";
+    summary.textContent = review.summary;
+    const points = document.createElement("ol");
+    points.className = "review-points";
+    for (const improvement of review.improvements) {
+      const point = document.createElement("li");
+      point.textContent = improvement;
+      points.append(point);
+    }
+    reviewCell.append(summary, points);
+    reviewRow.append(reviewCell);
+
+    reviewToggle.addEventListener("click", () => {
+      reviewRow.hidden = !reviewRow.hidden;
+      reviewToggle.setAttribute("aria-expanded", String(!reviewRow.hidden));
+    });
+
+    return [row, reviewRow];
   }));
 }
 
