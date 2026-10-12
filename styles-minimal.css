@@ -39,9 +39,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 .nav-button:hover, .nav-button.active { color: var(--accent); }
 
 .landing-page { min-height: 100vh; }
-.landing-page .page-shell { width: min(100% - 40px, 1100px); }
-.front-hero { padding-top: 8px; }
-.hero-art { display: flex; justify-content: center; }
+.front-hero { display: flex; justify-content: center; padding-top: 8px; }
 .hero-art-image { display: block; width: min(100%, 500px); height: auto; }
 
 .intro { max-width: 760px; padding: 60px 0 40px; }
@@ -56,7 +54,6 @@ button:hover { background: var(--accent); }
 button:disabled { cursor: wait; opacity: .65; }
 .button-arrow { margin-left: 12px; }
 .form-message { min-height: 1em; margin: 10px 0 0; color: #ff9878; }
-.field-help { color: var(--muted); font-size: 12px; }
 
 .status-panel { display: flex; align-items: center; gap: 14px; margin: 0 0 32px; }
 .status-panel p { margin: 0; color: var(--muted); }
@@ -89,7 +86,7 @@ button:disabled { cursor: wait; opacity: .65; }
 .site-footer a:hover { color: var(--accent); }
 
 @media (max-width: 640px) {
-  .page-shell, .landing-page .page-shell { width: min(100% - 28px, 1100px); }
+  .page-shell { width: min(100% - 28px, 1100px); }
   .site-header { gap: 16px; }
   .top-nav { gap: 16px; }
   .nav-button { font-size: 11px; }

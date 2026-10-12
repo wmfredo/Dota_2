@@ -71,9 +71,9 @@ async function loadPlayer(query) {
 async function resolveAccountId(query) {
   if (/^\d+$/.test(query) && Number(query) > 0) return query;
 
+  const normalizedQuery = query.trim().toLocaleLowerCase();
   try {
     const searchResults = await searchPlayers(query);
-    const normalizedQuery = query.trim().toLocaleLowerCase();
     const exactMatch = searchResults.find((player) => {
       const names = [player.personaname, player.name, player.steamAccount?.name].filter(Boolean);
       return names.some((name) => String(name).trim().toLocaleLowerCase() === normalizedQuery);
@@ -87,7 +87,6 @@ async function resolveAccountId(query) {
   }
 
   const fallbackSearch = await fetchOpenDotaJson(`/search?q=${encodeURIComponent(query)}`);
-  const normalizedQuery = query.trim().toLocaleLowerCase();
   const exactMatch = Array.isArray(fallbackSearch) ? fallbackSearch.find((player) => {
     const names = [player.personaname, player.name].filter(Boolean);
     return names.some((name) => String(name).trim().toLocaleLowerCase() === normalizedQuery);
@@ -100,14 +99,9 @@ async function resolveAccountId(query) {
   return String(exactMatch.account_id);
 }
 
-async function fetchJson(path, options = {}) {
+async function fetchJson(path) {
   const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${API_KEY}`,
-      ...(options.headers || {})
-    }
+    headers: { Accept: "application/json", Authorization: `Bearer ${API_KEY}` }
   });
 
   if (!response.ok) {
@@ -161,10 +155,7 @@ async function fetchStratzPlayer(accountId) {
   for (const path of paths) {
     try {
       const data = await fetchJson(path);
-      const profile = normalizeProfile(data);
-      if (profile && Object.keys(profile.profile || {}).length > 0) {
-        return profile;
-      }
+      return normalizeProfile(data);
     } catch (error) {
       // Probar la siguiente ruta si esta no existe.
     }
@@ -184,8 +175,7 @@ async function fetchStratzMatches(accountId) {
   for (const path of paths) {
     try {
       const data = await fetchJson(path);
-      const matches = normalizeMatches(data);
-      if (matches.length >= 0) return matches;
+      return normalizeMatches(data);
     } catch (error) {
       // La siguiente ruta puede usar un nombre de recurso distinto.
     }
@@ -246,7 +236,7 @@ function normalizeArray(payload) {
   if (Array.isArray(payload)) return payload;
   if (!payload || typeof payload !== "object") return [];
 
-  const nested = ["result", "results", "data", "items", "list", "heroes", "players", "matches"]
+  const nested = ["result", "results", "data", "items", "list", "players", "matches"]
     .map((key) => payload[key])
     .find((value) => Array.isArray(value));
 
@@ -293,18 +283,16 @@ function renderProfile(profile, matches) {
     const won = isPlayerWin(match);
     const row = document.createElement("div");
     row.className = "match-row";
-    row.innerHTML = `
-      <span class="match-index">0${index + 1}</span>
-      <strong class="match-result ${won === null ? "unknown" : won ? "win" : "loss"}">
-        ${won === null ? "Resultado no disponible" : won ? "Victoria" : "Derrota"}
-      </strong>
-    `;
+    const number = document.createElement("span");
+    number.className = "match-index";
+    number.textContent = String(index + 1).padStart(2, "0");
+
+    const result = document.createElement("strong");
+    result.className = `match-result ${won === null ? "unknown" : won ? "win" : "loss"}`;
+    result.textContent = won === null ? "Resultado no disponible" : won ? "Victoria" : "Derrota";
+    row.append(number, result);
     return row;
   }));
-}
-
-function escapeHtml(value) {
-  return value.replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
 }
 
 function setLoading(isLoading) {

@@ -10,9 +10,7 @@
   <body>
     <div class="page-shell">
       <header class="site-header">
-        <a class="brand" href="../index.html"  rel="noreferrer" aria-label="Ratoger web">
-          <span class="brand-text">RATOGER</span>
-        </a>
+        <a class="brand brand-text" href="../index.html" rel="noreferrer" aria-label="Ratoger web">RATOGER</a>
         <nav class="top-nav" aria-label="Navegación principal">
           <a class="nav-button active" href="./index.html">Análisis</a>
           <a class="nav-button" href="../social/index.html">Social</a>
@@ -25,7 +23,7 @@
           <form id="player-form" class="lookup-form" novalidate>
             <label for="account-id">Ingresa tu nombre o ID de Steam</label>
             <div class="input-row">
-              <input id="account-id" name="playerQuery" type="text" autocomplete="off" placeholder="Ej. Player_Name o 123456789" required aria-describedby="input-help form-message" />
+              <input id="account-id" name="playerQuery" type="text" autocomplete="off" placeholder="Ej. Player_Name o 123456789" required aria-describedby="form-message" />
               <button type="submit" id="submit-button">
                 <span>Analizar perfil</span>
                 <span class="button-arrow" aria-hidden="true">&#8599;</span>
@@ -49,7 +47,7 @@
               <img id="player-avatar" class="avatar" alt="" hidden />
               <div class="avatar-fallback" id="avatar-fallback" aria-hidden="true">?</div>
               <div>
-                <p class="eyebrow eyebrow-small">Perfil analizado</p>
+                <p class="eyebrow">Perfil analizado</p>
                 <h2 id="player-name">Jugador de Dota 2</h2>
               </div>
             </div>
@@ -61,7 +59,7 @@
 
           <div class="results-heading">
             <div>
-              <p class="eyebrow eyebrow-small">Partidas recientes</p>
+              <p class="eyebrow">Partidas recientes</p>
               <h2 id="results-title">Resultados de las últimas partidas</h2>
             </div>
           </div>
