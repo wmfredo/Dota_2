@@ -77,19 +77,21 @@ button:disabled { cursor: wait; opacity: .65; }
 .match-table { width: 100%; min-width: 620px; border-collapse: collapse; text-align: left; }
 .match-table th, .match-table td { padding: 14px; border-bottom: 1px solid var(--line); }
 .match-table th { color: var(--muted); font-size: 11px; text-transform: uppercase; }
-.match-table thead th:last-child, .match-table tbody tr:not(.review-row) td:last-child { position: sticky; right: 0; border-left: 1px solid var(--line); background: #000; z-index: 1; }
+.match-table thead th:last-child, .match-table tbody tr:not(.match-details-row) td:last-child { position: sticky; right: 0; border-left: 1px solid var(--line); background: #000; z-index: 1; }
 .match-table thead th:last-child { z-index: 2; }
 .match-hero { font-weight: 700; white-space: nowrap; }
 .match-hero-icon { width: 42px; height: 30px; margin-right: 10px; object-fit: cover; vertical-align: middle; }
 .match-result.win { color: #9de28c; }
 .match-result.loss { color: #ff9878; }
 .match-result.unknown { color: var(--muted); }
-.review-toggle { min-height: 0; padding: 0; background: none; color: var(--accent); font: inherit; text-decoration: underline; }
-.review-toggle:hover { background: none; color: var(--text); }
-.review-row td { background: #101010; }
-.review-summary { margin: 0 0 8px; font-weight: 700; }
-.review-points { margin: 0; padding-left: 20px; color: var(--muted); }
-.review-points li + li { margin-top: 4px; }
+.details-toggle { display: grid; width: 32px; height: 32px; min-height: 0; place-items: center; padding: 0; background: none; color: var(--accent); font-size: 22px; line-height: 1; }
+.details-toggle:hover { background: none; color: var(--text); }
+.match-details-row td { background: #101010; }
+.match-details-heading { margin: 0 0 14px; font-size: 14px; }
+.match-details-status { margin: 0 0 10px; color: var(--muted); font-size: 12px; }
+.match-details-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
+.match-details-list dt { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+.match-details-list dd { margin: 2px 0 0; font-weight: 700; }
 .empty-state { padding: 36px 0; text-align: center; }
 .empty-state p { color: var(--muted); }
 .site-footer { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
@@ -106,4 +108,5 @@ button:disabled { cursor: wait; opacity: .65; }
   button { min-height: 46px; }
   .profile-bar, .results-heading { align-items: flex-start; flex-direction: column; }
   .profile-stats { justify-content: flex-start; gap: 12px; }
+  .match-details-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 }

@@ -2,7 +2,7 @@
 
 ## Project overview
 
-This workspace contains a small static frontend for searching a Dota 2 player and showing the results of the last five processed matches.
+This workspace contains a small static frontend for searching a Dota 2 player and showing the results of the last ten processed matches.
 
 Key files:
 - [analisis/README.md](analisis/README.md) — product description, runtime notes, and OpenDota behavior.
@@ -30,7 +30,7 @@ Key files:
 - Name queries are case-insensitive and trim surrounding whitespace, but they are not partial-match searches.
 - The app fetches:
   - `/players/{account_id}`
-  - `/players/{account_id}/matches?limit=5`
+  - `/players/{account_id}/matches?limit=10`
   - `/search?q={name}`
 - Existing error handling should remain consistent for rate limiting (429), missing profiles (404), and generic API failures.
 - Do not assume additional backend caching or proxy layers exist; the frontend calls OpenDota directly.

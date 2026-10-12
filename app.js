@@ -1,7 +1,8 @@
 const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJTdWJqZWN0IjoiMDAwYWNjNWItMzQxOC00NWEwLTkwZGEtNGJlOWQ5NThlMzhjIiwiU3RlYW1JZCI6Ijg0OTI3NDE3IiwiQVBJVXNlciI6InRydWUiLCJuYmYiOjE3OTE3MzYxMzksImV4cCI6MTgyMzI3MjEzOSwiaWF0IjoxNzkxNzM2MTM5LCJpc3MiOiJodHRwczovL2FwaS5zdHJhdHouY29tIn0.B-TVkY7N14TUJGDmhSctbMiSxD_I8RceBxiwsLUK_Ew";
 const API_BASE = "https://api.stratz.com";
 const OPEN_DOTA_BASE = "https://api.opendota.com/api";
-const RECENT_MATCH_LIMIT = 5;
+const RECENT_MATCH_LIMIT = 10;
+const DETAIL_FIELDS = ["level", "netWorth", "goldPerMinute", "experiencePerMinute", "heroDamage", "structureDamage", "healing"];
 
 const form = document.querySelector("#player-form");
 const accountInput = document.querySelector("#account-id");
@@ -61,7 +62,7 @@ async function loadPlayer(query) {
       return;
     }
 
-    renderProfile(profile, recentMatches, new Map(heroes.map((hero) => [hero.id, hero])));
+    renderProfile(profile, recentMatches, new Map(heroes.map((hero) => [hero.id, hero])), accountId);
     results.hidden = false;
   } catch (error) {
     formMessage.textContent = error.message || "No pudimos leer este perfil ahora.";
@@ -246,17 +247,35 @@ function normalizeProfile(payload) {
 function normalizeMatches(payload) {
   const list = normalizeArray(payload);
   return list.map((match) => {
-    const stats = match.player || match.stats || {};
+    const stats = match.player || match.stats || match.statistics || {};
+    const value = (...keys) => {
+      for (const key of keys) {
+        const field = match[key] ?? stats[key];
+        if (field != null) return field;
+      }
+      return null;
+    };
+
     return {
       ...match,
+      match_id: value("match_id", "matchId"),
       hero_id: match.hero_id ?? match.heroId ?? match.hero?.id ?? null,
       player_slot: match.player_slot ?? match.playerSlot ?? match.player_slot_id ?? null,
       radiant_win: match.radiant_win ?? match.radiantWin ?? match.radiant ?? null,
       win: match.win ?? match.isWin ?? match.isVictory ?? null,
-      kills: match.kills ?? stats.kills ?? null,
-      deaths: match.deaths ?? stats.deaths ?? null,
-      assists: match.assists ?? stats.assists ?? null,
-      duration: match.duration ?? match.durationSeconds ?? null
+      kills: value("kills"),
+      deaths: value("deaths"),
+      assists: value("assists"),
+      duration: value("duration", "durationSeconds"),
+      level: value("level", "finalLevel", "levelAchieved"),
+      netWorth: value("netWorth", "net_worth"),
+      goldPerMinute: value("goldPerMinute", "goldPerMin", "gold_per_min"),
+      experiencePerMinute: value("experiencePerMinute", "experiencePerMin", "xpPerMin", "xp_per_min"),
+      heroDamage: value("heroDamage", "hero_damage"),
+      structureDamage: value("structureDamage", "buildingDamage", "towerDamage", "tower_damage"),
+      healing: value("heroHealing", "hero_healing", "healing"),
+      teamKills: value("teamKills", "team_kills"),
+      killParticipation: value("killParticipation", "kill_participation")
     };
   });
 }
@@ -332,30 +351,92 @@ function formatDuration(duration) {
   return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 }
 
-function getMatchReview(match, won) {
-  const kills = Number(match.kills);
-  const deaths = Number(match.deaths);
-  const assists = Number(match.assists);
-  const hasKda = [match.kills, match.deaths, match.assists]
-    .every((value) => value != null && Number.isFinite(Number(value)));
-  const result = won === null ? "Resultado no disponible" : won ? "Victoria" : "Derrota";
-  const summary = `${result} · K/D/A ${formatKda(match)} · ${formatDuration(match.duration)}`;
-  const improvements = [
-    hasKda && deaths >= 6
-      ? "Reduce muertes: evita iniciar sin visión y espera a que tu equipo pueda seguirte."
-      : "Antes de avanzar, comprueba el minimapa y evita pelear en inferioridad.",
-    hasKda && assists < kills
-      ? "Tras ganar un duelo, busca una rotación que convierta la ventaja en objetivo."
-      : "Después de una pelea favorable, coordina con tu equipo para asegurar un objetivo.",
-    won === false
-      ? "Tras una pelea perdida, reagrúpate y prioriza una zona de farmeo segura."
-      : "Reserva tus habilidades clave para la siguiente pelea importante."
-  ];
+function numericValue(value) {
+  if (value == null || value === "") return null;
+  if (typeof value === "object") {
+    const values = Object.values(value).map(Number).filter(Number.isFinite);
+    return values.length ? values.reduce((total, item) => total + item, 0) : null;
+  }
 
-  return { summary, improvements };
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 }
 
-function renderProfile(profile, matches, heroNames) {
+function formatMetric(value, suffix = "") {
+  const number = numericValue(value);
+  return number == null ? "No disponible" : `${new Intl.NumberFormat("es").format(Math.round(number))}${suffix}`;
+}
+
+function formatKillParticipation(match) {
+  const direct = numericValue(match.killParticipation);
+  if (direct != null) return `${Math.round(direct <= 1 ? direct * 100 : direct)}%`;
+
+  const kills = numericValue(match.kills);
+  const assists = numericValue(match.assists);
+  const teamKills = numericValue(match.teamKills);
+  if (kills == null || assists == null || teamKills == null || teamKills <= 0) return "No disponible";
+  return `${Math.round(((kills + assists) / teamKills) * 100)}%`;
+}
+
+function renderMatchDetails(list, match) {
+  const metrics = [
+    ["Nivel final", formatMetric(match.level)],
+    ["Valor neto", formatMetric(match.netWorth, " oro")],
+    ["GPM", formatMetric(match.goldPerMinute, " oro/min")],
+    ["XPM", formatMetric(match.experiencePerMinute, " EXP/min")],
+    ["Daño a héroes", formatMetric(match.heroDamage)],
+    ["Daño a estructuras", formatMetric(match.structureDamage)],
+    ["Curación", formatMetric(match.healing)],
+    ["Participación en bajas", formatKillParticipation(match)]
+  ];
+
+  list.replaceChildren(...metrics.flatMap(([label, value]) => {
+    const item = document.createElement("div");
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const description = document.createElement("dd");
+    description.textContent = value;
+    item.append(term, description);
+    return item;
+  }));
+}
+
+function getTeamKills(match, fullMatch, player) {
+  const existing = numericValue(match.teamKills);
+  if (existing != null && existing > 0) return existing;
+
+  const slot = Number(player.player_slot ?? match.player_slot);
+  if (!Number.isFinite(slot)) return null;
+  const isRadiant = slot < 128;
+  const score = numericValue(isRadiant ? fullMatch.radiant_score : fullMatch.dire_score);
+  if (score != null && score > 0) return score;
+
+  const team = (fullMatch.players || []).filter((teammate) => (Number(teammate.player_slot) < 128) === isRadiant);
+  return team.length ? team.reduce((total, teammate) => total + (numericValue(teammate.kills) || 0), 0) : null;
+}
+
+async function fetchFullMatchDetails(match, accountId) {
+  const fullMatch = await fetchOpenDotaJson(`/matches/${encodeURIComponent(match.match_id)}`);
+  const players = Array.isArray(fullMatch.players) ? fullMatch.players : [];
+  const player = players.find((item) => Number(item.account_id) === Number(accountId)) ||
+    players.find((item) => Number(item.player_slot) === Number(match.player_slot));
+  if (!player) return null;
+
+  const [details] = normalizeMatches([player]);
+  const merged = { ...match };
+  for (const field of [...DETAIL_FIELDS, "kills", "assists", "killParticipation"]) {
+    if (details[field] != null) merged[field] = details[field];
+  }
+  merged.teamKills = getTeamKills(match, fullMatch, player);
+  return merged;
+}
+
+function needsFullMatchDetails(match) {
+  return DETAIL_FIELDS.some((field) => numericValue(match[field]) == null) ||
+    (numericValue(match.killParticipation) == null && numericValue(match.teamKills) == null);
+}
+
+function renderProfile(profile, matches, heroNames, accountId) {
   const profileData = profile.profile || {};
   const displayName = profileData.personaname || profileData.name || "Jugador de Dota 2";
   const avatar = profileData.avatarfull || profileData.avatarmedium || profileData.avatar;
@@ -406,42 +487,51 @@ function renderProfile(profile, matches, heroNames) {
     }
 
     const actionCell = document.createElement("td");
-    const reviewId = `match-review-${index + 1}`;
-    const reviewToggle = document.createElement("button");
-    reviewToggle.className = "review-toggle";
-    reviewToggle.type = "button";
-    reviewToggle.textContent = "Valoración";
-    reviewToggle.setAttribute("aria-expanded", "false");
-    reviewToggle.setAttribute("aria-controls", reviewId);
-    actionCell.append(reviewToggle);
+    const detailsId = `match-details-${index + 1}`;
+    const detailsToggle = document.createElement("button");
+    detailsToggle.className = "details-toggle";
+    detailsToggle.type = "button";
+    detailsToggle.textContent = "+";
+    detailsToggle.setAttribute("aria-label", "Ampliar detalles de la partida");
+    detailsToggle.setAttribute("aria-expanded", "false");
+    detailsToggle.setAttribute("aria-controls", detailsId);
+    actionCell.append(detailsToggle);
     row.append(actionCell);
 
-    const review = getMatchReview(match, won);
-    const reviewRow = document.createElement("tr");
-    reviewRow.className = "review-row";
-    reviewRow.hidden = true;
-    const reviewCell = document.createElement("td");
-    reviewCell.colSpan = 5;
-    reviewCell.id = reviewId;
-    const summary = document.createElement("p");
-    summary.className = "review-summary";
-    summary.textContent = review.summary;
-    const points = document.createElement("ol");
-    points.className = "review-points";
-    for (const improvement of review.improvements) {
-      const point = document.createElement("li");
-      point.textContent = improvement;
-      points.append(point);
-    }
-    reviewCell.append(summary, points);
-    reviewRow.append(reviewCell);
+    const detailsRow = document.createElement("tr");
+    detailsRow.className = "match-details-row";
+    detailsRow.hidden = true;
+    const detailsCell = document.createElement("td");
+    detailsCell.colSpan = 5;
+    detailsCell.id = detailsId;
+    const detailsHeading = document.createElement("h3");
+    detailsHeading.className = "match-details-heading";
+    detailsHeading.textContent = "Rendimiento de la partida";
+    const detailsStatus = document.createElement("p");
+    detailsStatus.className = "match-details-status";
+    const detailsList = document.createElement("dl");
+    detailsList.className = "match-details-list";
+    renderMatchDetails(detailsList, match);
+    detailsCell.append(detailsHeading, detailsStatus, detailsList);
+    detailsRow.append(detailsCell);
 
-    reviewToggle.addEventListener("click", () => {
-      reviewRow.hidden = !reviewRow.hidden;
-      reviewToggle.setAttribute("aria-expanded", String(!reviewRow.hidden));
+    detailsToggle.addEventListener("click", async () => {
+      detailsRow.hidden = !detailsRow.hidden;
+      const expanded = !detailsRow.hidden;
+      detailsToggle.textContent = expanded ? "−" : "+";
+      detailsToggle.setAttribute("aria-label", `${expanded ? "Ocultar" : "Ampliar"} detalles de la partida`);
+      detailsToggle.setAttribute("aria-expanded", String(expanded));
+
+      if (!expanded || !needsFullMatchDetails(match) || match.match_id == null) return;
+      match.detailsPromise ||= fetchFullMatchDetails(match, accountId).catch(() => null);
+      detailsStatus.textContent = "Cargando estadísticas detalladas…";
+      const details = await match.detailsPromise;
+      if (details) Object.assign(match, details);
+      detailsStatus.textContent = details ? "" : "Algunos datos no están disponibles.";
+      renderMatchDetails(detailsList, match);
     });
 
-    return [row, reviewRow];
+    return [row, detailsRow];
   }));
 }
 
