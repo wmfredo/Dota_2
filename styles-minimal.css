@@ -38,19 +38,36 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 }
 .nav-button:hover, .nav-button.active { color: var(--accent); }
 
-.landing-page { min-height: 100vh; }
-.front-hero { display: flex; justify-content: center; padding-top: 8px; }
-.hero-art-image { display: block; width: min(100%, 500px); height: auto; }
-.community-intro { max-width: 760px; margin: 0 auto; padding: 64px 0 56px; }
-.community-intro h1 { margin-bottom: 20px; font-size: clamp(28px, 5vw, 42px); line-height: 1.15; }
-.community-intro p { margin-bottom: 16px; }
-.community-intro ul { display: grid; gap: 8px; margin: 20px 0; padding-left: 24px; list-style: disc; }
-.join-community { margin-top: 40px; }
-.join-community h2 { margin-bottom: 16px; font-size: clamp(24px, 4vw, 32px); line-height: 1.2; }
+.landing-page { position: relative; isolation: isolate; min-height: 100vh; background: #000; }
+.landing-page::before, .landing-page::after { position: fixed; inset: 0; pointer-events: none; content: ""; }
+.landing-page::before {
+  z-index: -2;
+  inset: -18px;
+  background: url("./assets/ratoger-clan.png") center / cover no-repeat;
+  filter: blur(14px) brightness(.4);
+  transform: scale(1.04);
+}
+.landing-page::after { z-index: -1; background: rgba(0, 0, 0, .48); }
+.landing-page .page-shell { position: relative; z-index: 1; width: min(100% - 40px, 900px); }
+.landing-hero, .welcome-section, .join-community {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100svh;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0;
+  scroll-snap-align: start;
+}
+.landing-hero { align-items: center; justify-content: center; }
+.hero-art-image { display: block; width: min(100%, 640px); max-height: 78svh; object-fit: contain; }
+.welcome-section { padding-top: clamp(120px, 18vh, 190px); }
+.landing-title { margin-bottom: 24px; font-size: clamp(32px, 5vw, 44px); line-height: 1.1; }
+.welcome-section p, .join-community p { margin-bottom: 16px; }
+.welcome-section ul { display: grid; gap: 8px; margin: 20px 0; padding-left: 24px; list-style: disc; }
 .join-community ol { display: grid; gap: 8px; margin: 16px 0; padding-left: 24px; }
 .join-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
-.join-option { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--line); color: var(--text); text-decoration: none; transition: border-color .15s ease, background-color .15s ease; }
-.join-option:hover { border-color: var(--accent); background: #101010; }
+.join-option { display: grid; align-content: center; gap: 4px; min-height: 76px; padding: 16px; border: 1px solid var(--accent); background: rgba(255, 120, 68, .12); color: var(--text); text-decoration: none; transition: background-color .15s ease; }
+.join-option:hover { background: rgba(255, 120, 68, .3); }
 .join-option strong { color: var(--accent); }
 .join-option span { color: var(--muted); font-size: 14px; }
 
@@ -115,8 +132,13 @@ button:disabled { cursor: wait; opacity: .65; }
   .site-header { gap: 16px; }
   .top-nav { gap: 16px; }
   .nav-button { font-size: 11px; }
-  .community-intro { padding: 48px 0 40px; }
-  .join-options { grid-template-columns: 1fr; }
+  .landing-page .page-shell { width: min(100% - 28px, 900px); }
+  .landing-hero, .welcome-section, .join-community { padding: 48px 0; }
+  .landing-hero { padding: 0; }
+  .welcome-section { padding-top: 120px; }
+  .join-options { gap: 8px; }
+  .join-option { padding: 12px 10px; text-align: center; }
+  .join-option span { font-size: 12px; }
   .intro { padding: 44px 0 32px; }
   .input-row { flex-direction: column; }
   button { min-height: 46px; }
