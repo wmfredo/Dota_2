@@ -41,10 +41,18 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 .landing-page { min-height: 100vh; }
 .front-hero { display: flex; justify-content: center; padding-top: 8px; }
 .hero-art-image { display: block; width: min(100%, 500px); height: auto; }
-.community-intro { max-width: 760px; margin: 0 auto; padding: 32px 0 56px; }
+.community-intro { max-width: 760px; margin: 0 auto; padding: 64px 0 56px; }
 .community-intro h1 { margin-bottom: 20px; font-size: clamp(28px, 5vw, 42px); line-height: 1.15; }
 .community-intro p { margin-bottom: 16px; }
-.community-intro ul { display: grid; gap: 8px; margin: 20px 0; padding: 0; list-style: none; }
+.community-intro ul { display: grid; gap: 8px; margin: 20px 0; padding-left: 24px; list-style: disc; }
+.join-community { margin-top: 40px; }
+.join-community h2 { margin-bottom: 16px; font-size: clamp(24px, 4vw, 32px); line-height: 1.2; }
+.join-community ol { display: grid; gap: 8px; margin: 16px 0; padding-left: 24px; }
+.join-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.join-option { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--line); color: var(--text); text-decoration: none; transition: border-color .15s ease, background-color .15s ease; }
+.join-option:hover { border-color: var(--accent); background: #101010; }
+.join-option strong { color: var(--accent); }
+.join-option span { color: var(--muted); font-size: 14px; }
 
 .intro { max-width: 760px; padding: 60px 0 40px; }
 h1, h2, p { margin-top: 0; }
@@ -107,7 +115,8 @@ button:disabled { cursor: wait; opacity: .65; }
   .site-header { gap: 16px; }
   .top-nav { gap: 16px; }
   .nav-button { font-size: 11px; }
-  .community-intro { padding: 28px 0 40px; }
+  .community-intro { padding: 48px 0 40px; }
+  .join-options { grid-template-columns: 1fr; }
   .intro { padding: 44px 0 32px; }
   .input-row { flex-direction: column; }
   button { min-height: 46px; }
