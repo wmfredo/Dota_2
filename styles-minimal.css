@@ -43,7 +43,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 .landing-page::before {
   z-index: -2;
   inset: -18px;
-  background: url("./assets/ratoger-clan.png") center / cover no-repeat;
+  background: url("./assets/Clan_Ratoger.jpeg") center / cover no-repeat;
   filter: blur(14px) brightness(.4);
   transform: scale(1.04);
 }
