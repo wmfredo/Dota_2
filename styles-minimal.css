@@ -49,6 +49,21 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 }
 .landing-page::after { z-index: -1; background: rgba(0, 0, 0, .48); }
 .landing-page .page-shell { position: relative; z-index: 1; width: min(100% - 40px, 900px); }
+.members-access {
+  position: fixed;
+  z-index: 5;
+  top: 18px;
+  right: max(20px, calc((100vw - 900px) / 2));
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  background: rgba(0, 0, 0, .78);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color .15s ease;
+}
+.members-access:hover { background: rgba(255, 120, 68, .3); }
 .landing-hero, .welcome-section, .join-community {
   display: flex;
   min-height: 100vh;
@@ -140,6 +155,7 @@ button:disabled { cursor: wait; opacity: .65; }
 
 @media (max-width: 640px) {
   .page-shell { width: min(100% - 28px, 1100px); }
+  .members-access { top: 12px; right: 14px; padding: 8px 12px; font-size: 12px; }
   .site-header { gap: 16px; }
   .top-nav { gap: 16px; }
   .nav-button { font-size: 11px; }
