@@ -12,20 +12,22 @@ El botón «Acceso miembros» abre `/miembros` en el mismo servidor. [server.mjs
 
 ### Configurar el servidor dedicado
 
-1. Instala Node.js 20 o superior en el servidor.
+1. Instala Node.js 20.6 o superior en el servidor.
 2. Crea una aplicación en el [Discord Developer Portal](https://discord.com/developers/applications). Copia el Client ID y Client Secret y añade como Redirect URI `https://TU-DOMINIO/auth/callback`.
 3. Obtén el ID del servidor de Discord (activa el modo desarrollador en Discord y copia el ID del servidor).
-4. Configura estas variables de entorno en el servicio que ejecuta Node; no guardes el Client Secret en el frontend ni lo subas al repositorio:
+4. Guarda la configuración en un archivo `.env` en la raíz del proyecto. Node no lo carga automáticamente; el comando del paso siguiente lo leerá. El archivo debe incluir:
 
    ```text
-   DISCORD_CLIENT_ID=el-client-id
-   DISCORD_CLIENT_SECRET=el-client-secret
-   DISCORD_GUILD_ID=el-id-del-servidor
+   DISCORD_CLIENT_ID=tu-client-id
+   DISCORD_CLIENT_SECRET=tu-client-secret
+   DISCORD_GUILD_ID=tu-id-del-servidor
    PUBLIC_URL=https://TU-DOMINIO
    PORT=3000
    ```
 
-5. Ejecuta `node server.mjs`. El servidor escucha sólo en `127.0.0.1:3000`; configura Nginx (o el proxy HTTPS que ya uses) para reenviar el dominio a ese puerto. Mantén HTTPS habilitado, porque Discord OAuth y la cookie segura lo requieren.
+   También se acepta `DISCORD_SERVER_ID` en lugar de `DISCORD_GUILD_ID`. `.env` está excluido de Git; no guardes el Client Secret en el frontend ni lo subas al repositorio.
+
+5. Ejecuta `node --env-file=.env server.mjs`. El servidor escucha sólo en `127.0.0.1:3000`; configura Nginx (o el proxy HTTPS que ya uses) para reenviar el dominio a ese puerto. Mantén HTTPS habilitado, porque Discord OAuth y la cookie segura lo requieren.
 
 Nginx necesita pasar las peticiones del dominio al servidor Node, por ejemplo:
 

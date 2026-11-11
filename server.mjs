@@ -25,14 +25,15 @@ const contentTypes = {
 const config = {
   clientId: process.env.DISCORD_CLIENT_ID,
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
-  guildId: process.env.DISCORD_GUILD_ID,
+  guildId: process.env.DISCORD_GUILD_ID || process.env.DISCORD_SERVER_ID,
   publicUrl: process.env.PUBLIC_URL,
   port: Number(process.env.PORT || 3000)
 };
 
 function validateConfig() {
-  const missing = ["DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET", "DISCORD_GUILD_ID", "PUBLIC_URL"]
+  const missing = ["DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET", "PUBLIC_URL"]
     .filter((name) => !process.env[name]);
+  if (!config.guildId) missing.push("DISCORD_GUILD_ID (o DISCORD_SERVER_ID)");
   if (missing.length) {
     throw new Error(`Falta configurar: ${missing.join(", ")}.`);
   }
