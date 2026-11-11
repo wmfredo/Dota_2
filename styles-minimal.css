@@ -86,17 +86,6 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 .join-option strong { color: var(--accent); }
 .join-option span { color: var(--muted); font-size: 14px; }
 
-.guild-ranking { padding: 72px 0 48px; border-top: 1px solid var(--line); }
-.guild-ranking h2 { margin-bottom: 24px; }
-.guild-ranking h2 span { color: var(--accent); white-space: nowrap; }
-.guild-ranking-card { padding: 24px; border: 1px solid var(--line); background: rgba(0, 0, 0, .68); }
-.guild-ranking-status, .guild-ranking-card #guild-ranking-details { margin: 0; color: var(--muted); }
-.guild-ranking-position { display: block; color: var(--accent); font-size: clamp(44px, 9vw, 72px); line-height: 1; }
-.guild-ranking-card #guild-ranking-details { margin-top: 12px; }
-.guild-ranking-updated { margin: 12px 0 0; color: var(--muted); font-size: 12px; }
-.guild-ranking-source { display: inline-block; margin-top: 16px; color: var(--muted); font-size: 13px; text-decoration: none; }
-.guild-ranking-source:hover { color: var(--text); }
-
 .intro { max-width: 760px; padding: 60px 0 40px; }
 h1, h2, p { margin-top: 0; }
 h1 { margin-bottom: 24px; font-size: clamp(36px, 6vw, 64px); line-height: 1.05; }
@@ -166,8 +155,6 @@ button:disabled { cursor: wait; opacity: .65; }
   .join-options { gap: 8px; }
   .join-option { padding: 12px 10px; text-align: center; }
   .join-option span { font-size: 12px; }
-  .guild-ranking { padding: 56px 0 36px; }
-  .guild-ranking-card { padding: 20px; }
   .intro { padding: 44px 0 32px; }
   .input-row { flex-direction: column; }
   button { min-height: 46px; }

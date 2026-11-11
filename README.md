@@ -4,7 +4,7 @@ Herramienta web estática para consultar un jugador de Dota 2 por nombre exacto 
 
 ## Página del clan
 
-La portada muestra la posición semanal europea de RATOGER ([RATOG]) consultando en cada carga la API oficial de Dota 2 `FindGuildByTag`, sin reutilizar una respuesta almacenada en la caché del navegador. Se muestran el puesto semanal, los puntos y el número de miembros cuando están disponibles. Si la API no responde o aún no publica un puesto, la página indica que no pudo actualizar los datos en vez de mostrar una cifra anterior.
+La portada presenta la comunidad RATOGER e incluye enlaces para unirse por Discord o WhatsApp. No consulta ni muestra el ranking del clan.
 
 ## Acceso de miembros
 
