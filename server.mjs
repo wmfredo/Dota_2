@@ -101,7 +101,7 @@ function escapeHtml(value) {
   })[character]);
 }
 
-function renderPage(title, content, status = 200) {
+function renderPage(response, title, content, status = 200) {
   const imageUrl = `${config.publicUrl}/assets/Clan_Ratoger.jpeg`;
   const html = `<!doctype html>
 <html lang="es">
@@ -147,7 +147,7 @@ function renderPage(title, content, status = 200) {
 
 function renderLoginPage(response, message = "", status = 200) {
   const notice = message ? `<p class="notice" role="status">${escapeHtml(message)}</p>` : "";
-  renderPage("Acceso miembros", `
+  renderPage(response, "Acceso miembros", `
     <main class="panel">
       <p class="eyebrow">Comunidad RATOGER</p>
       <h1>Acceso miembros</h1>
@@ -168,7 +168,7 @@ function renderMemberPage(response, session) {
       </div>
     </header>`;
 
-  renderPage("Área de miembros", `${accountHeader}
+  renderPage(response, "Área de miembros", `${accountHeader}
     <main class="panel">
       <p class="eyebrow">Área privada</p>
       <h1>¡Bienvenido, ${escapeHtml(session.displayName)}!</h1>
@@ -178,7 +178,7 @@ function renderMemberPage(response, session) {
 }
 
 function renderMembersPage(response, session) {
-  renderPage("Miembros", `
+  renderPage(response, "Miembros", `
     <header class="member-header">
       <a class="brand" href="/">RATOGER</a>
       <div class="account">
@@ -263,7 +263,8 @@ async function finishLogin(request, response, url) {
     signal: AbortSignal.timeout(10000)
   });
   if (!tokenResponse.ok) {
-    throw new Error(`Discord rechazó el intercambio OAuth (${tokenResponse.status}).`);
+    const detail = (await tokenResponse.text().catch(() => "")).slice(0, 300);
+    throw new Error(`Discord rechazó el intercambio OAuth (${tokenResponse.status}): ${detail}`);
   }
   const tokenData = await tokenResponse.json();
   if (typeof tokenData.access_token !== "string") {
@@ -272,7 +273,8 @@ async function finishLogin(request, response, url) {
 
   const userResponse = await discordRequest("/users/@me", tokenData.access_token);
   if (!userResponse.ok) {
-    throw new Error(`Discord no pudo identificar al usuario (${userResponse.status}).`);
+    const detail = (await userResponse.text().catch(() => "")).slice(0, 300);
+    throw new Error(`Discord no pudo identificar al usuario (${userResponse.status}): ${detail}`);
   }
   const user = await userResponse.json();
   if (typeof user.id !== "string" || typeof user.username !== "string") {
@@ -288,7 +290,8 @@ async function finishLogin(request, response, url) {
     return renderLoginPage(response, "Tu cuenta de Discord no pertenece al servidor de RATOGER.", 403);
   }
   if (!memberResponse.ok) {
-    throw new Error(`Discord no pudo comprobar la pertenencia al servidor (${memberResponse.status}).`);
+    const detail = (await memberResponse.text().catch(() => "")).slice(0, 300);
+    throw new Error(`Discord no pudo comprobar la pertenencia al servidor (${memberResponse.status}): ${detail}`);
   }
   const member = await memberResponse.json();
 
