@@ -17,7 +17,7 @@ body {
 }
 
 a { color: inherit; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .page-shell { width: min(100% - 40px, 1100px); margin: 0 auto; }
 .site-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 0; }
 .brand { color: var(--text); text-decoration: none; }
@@ -73,8 +73,15 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
   padding: 48px 0;
   scroll-snap-align: start;
 }
-.landing-hero { align-items: center; justify-content: center; }
+.landing-hero { position: relative; align-items: center; justify-content: center; }
 .hero-art-image { display: block; width: min(100%, 640px); max-height: 78svh; object-fit: contain; }
+.scroll-cue { position: absolute; bottom: 20px; left: 50%; display: grid; justify-items: center; gap: 7px; color: var(--text); font-size: 12px; text-decoration: none; transform: translateX(-50%); }
+.scroll-cue-label { text-shadow: 0 1px 5px #000; }
+.scroll-cue-arrow { width: 14px; height: 14px; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); animation: scroll-cue-bounce 1.4s ease-in-out infinite; transform: rotate(45deg) translate(-3px, -3px); }
+@keyframes scroll-cue-bounce {
+  0%, 100% { transform: rotate(45deg) translate(-3px, -3px); }
+  50% { transform: rotate(45deg) translate(2px, 2px); }
+}
 .welcome-section { padding-top: clamp(120px, 18vh, 190px); }
 .landing-title { margin-bottom: 24px; font-size: clamp(32px, 5vw, 44px); line-height: 1.1; }
 .welcome-section p, .join-community p { margin-bottom: 16px; }
@@ -93,6 +100,7 @@ h1 { margin-bottom: 24px; font-size: clamp(36px, 6vw, 64px); line-height: 1.05; 
 .lookup-form label { display: block; margin-bottom: 8px; font-weight: 700; }
 .input-row { display: flex; gap: 10px; }
 input { min-width: 0; flex: 1; padding: 13px; border: 1px solid var(--line); background: #080808; color: var(--text); font: inherit; }
+select { min-width: 0; padding: 13px; border: 1px solid var(--line); background: #080808; color: var(--text); font: inherit; }
 button { padding: 12px 18px; border: 0; background: var(--text); color: #000; cursor: pointer; font: 700 14px system-ui, sans-serif; }
 button:hover { background: var(--accent); }
 button:disabled { cursor: wait; opacity: .65; }
@@ -138,6 +146,20 @@ button:disabled { cursor: wait; opacity: .65; }
 .match-details-list dd { margin: 2px 0 0; font-weight: 700; }
 .empty-state { padding: 36px 0; text-align: center; }
 .empty-state p { color: var(--muted); }
+.coach-picker { margin: 0 0 36px; padding: 20px; border: 1px solid var(--line); background: rgba(0, 0, 0, .35); }
+.coach-picker h2 { margin: 0 0 16px; }
+.coach-picker .input-row { align-items: end; }
+.coach-picker #match-select { flex: 1; }
+.role-field { display: grid; gap: 6px; min-width: 150px; font-size: 13px; font-weight: 700; }
+.coach-picker .form-message { margin-bottom: 0; }
+.coach-results { padding: 28px 0 48px; }
+.coach-results h2 { margin-bottom: 20px; }
+.focus-list { display: grid; gap: 14px; padding-left: 28px; }
+.focus-item { padding: 16px 18px; border: 1px solid var(--line); background: rgba(0, 0, 0, .38); }
+.focus-item p { margin: 0 0 10px; }
+.focus-item p:last-child { margin-bottom: 0; }
+.focus-item strong { color: var(--accent); }
+.next-observation { margin: 24px 0 0; padding-top: 18px; border-top: 1px solid var(--line); font-weight: 700; }
 .site-footer { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .site-footer a { color: var(--text); text-decoration: none; }
 .site-footer a:hover { color: var(--accent); }
@@ -161,4 +183,10 @@ button:disabled { cursor: wait; opacity: .65; }
   .profile-bar, .results-heading { align-items: flex-start; flex-direction: column; }
   .profile-stats { justify-content: flex-start; gap: 12px; }
   .match-details-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .coach-picker { padding: 14px; }
+  .coach-picker .input-row { align-items: stretch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue-arrow { animation: none; }
 }

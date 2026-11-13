@@ -27,6 +27,12 @@ form.addEventListener("submit", (event) => {
   loadPlayer(query);
 });
 
+const initialPlayer = new URLSearchParams(window.location.search).get("player")?.trim();
+if (initialPlayer) {
+  accountInput.value = initialPlayer;
+  loadPlayer(initialPlayer);
+}
+
 async function loadPlayer(query) {
   setLoading(true);
   clearView();

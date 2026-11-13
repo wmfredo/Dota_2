@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coach de rendimiento | RATOGER</title>
+    <link rel="stylesheet" href="../styles-minimal.css?v=20261113-0001" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand brand-text" href="../index.html" aria-label="Ratoger web">RATOGER</a>
+        <nav class="top-nav" aria-label="Navegación principal">
+          <a class="nav-button active" href="./index.html">Coach</a>
+          <a class="nav-button" href="../analisis/">Estadísticas</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="intro" aria-labelledby="page-title">
+          <h1 id="page-title">Analiza tu rendimiento</h1>
+          <p>Selecciona una de tus partidas procesadas por OpenDota. Recibirás tres focos concretos basados en sus estadísticas; una sola partida puede tener mucha variación.</p>
+          <form id="coach-form" class="lookup-form" novalidate>
+            <label for="player-name">Nombre exacto de OpenDota</label>
+            <div class="input-row">
+              <input id="player-name" type="text" autocomplete="off" required aria-describedby="form-message" />
+              <button type="submit" id="load-button">Cargar partidas</button>
+            </div>
+            <p id="form-message" class="form-message" role="alert" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section id="status-panel" class="status-panel" hidden aria-live="polite">
+          <span class="loader" aria-hidden="true"></span>
+          <div>
+            <strong id="status-title">Buscando jugador</strong>
+            <p id="status-detail">Consultando OpenDota.</p>
+          </div>
+        </section>
+
+        <section id="match-picker" class="coach-picker" hidden aria-labelledby="match-picker-title">
+          <h2 id="match-picker-title">Elige una partida</h2>
+          <div class="input-row">
+            <select id="match-select" aria-label="Partida para analizar"></select>
+            <label class="role-field" for="player-role">Tu posición (opcional)
+              <select id="player-role">
+                <option value="">No indicada</option>
+                <option value="1">Posición 1</option>
+                <option value="2">Posición 2</option>
+                <option value="3">Posición 3</option>
+                <option value="4">Posición 4</option>
+                <option value="5">Posición 5</option>
+              </select>
+            </label>
+            <button type="button" id="analyze-button">Analizar partida</button>
+          </div>
+          <p id="coach-message" class="form-message" role="status" aria-live="polite"></p>
+        </section>
+
+        <section id="coach-results" class="coach-results" hidden aria-labelledby="coach-results-title">
+          <p class="eyebrow">Análisis basado en los datos disponibles</p>
+          <h2 id="coach-results-title"></h2>
+          <ol id="focus-list" class="focus-list"></ol>
+          <p id="next-match-observation" class="next-observation"></p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span>DATOS DE OPENDOTA</span>
+        <a href="https://docs.opendota.com" target="_blank" rel="noreferrer">Ver documentación <span aria-hidden="true">&#8599;</span></a>
+      </footer>
+    </div>
+  </body>
+</html>

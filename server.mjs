@@ -131,6 +131,11 @@ function renderPage(response, title, content, status = 200) {
       .button { display: inline-block; margin: 8px 0 12px; padding: 12px 18px; border: 1px solid var(--accent); background: rgba(255, 120, 68, .16); color: var(--text); font-weight: 700; text-decoration: none; }
       .button:hover { background: rgba(255, 120, 68, .34); }
       .button.secondary { border-color: var(--line); background: rgba(0, 0, 0, .3); }
+      .rank-status { margin: 0 0 24px; color: var(--accent); font-weight: 700; }
+      .member-tools { display: grid; gap: 12px; margin: 24px 0; }
+      .member-tools .button, .member-tool { display: grid; gap: 5px; margin: 0; padding: 16px; }
+      .member-tools .button span { color: var(--muted); font-size: 14px; font-weight: 400; }
+      .member-tool { border: 1px solid var(--line); color: var(--muted); }
       .notice { margin: 24px 0; color: #ff9878; }
       .small { margin-top: 20px; }
       @media (max-width: 520px) {
@@ -159,11 +164,12 @@ function renderLoginPage(response, message = "", status = 200) {
 }
 
 function renderMemberPage(response, session) {
+  const playerName = session.displayName;
   const accountHeader = `
     <header class="member-header">
       <a class="brand" href="/">RATOGER</a>
       <div class="account">
-        <span>${escapeHtml(session.displayName)}</span>
+        <span>${escapeHtml(playerName)}</span>
         <form action="/auth/logout" method="post"><button class="text-button" type="submit">Cerrar sesión</button></form>
       </div>
     </header>`;
@@ -171,28 +177,29 @@ function renderMemberPage(response, session) {
   renderPage(response, "Área de miembros", `${accountHeader}
     <main class="panel">
       <p class="eyebrow">Área privada</p>
-      <h1>¡Bienvenido, ${escapeHtml(session.displayName)}!</h1>
-      <p>Has iniciado sesión con Discord y tu pertenencia al servidor de RATOGER está verificada.</p>
-      <a class="button" href="/miembros/listado">Ir a Miembros</a>
-    </main>`);
+      <h1>Bienvenido "${escapeHtml(playerName)}", esto es lo que puedes hacer:</h1>
+      <p>Tu pertenencia al servidor de RATOGER está verificada.</p>
+      <p id="member-rank" class="rank-status" data-member-name="${escapeHtml(playerName)}" aria-live="polite">Consultando rango en OpenDota…</p>
+      <nav class="member-tools" aria-label="Herramientas para miembros">
+        <a class="button" href="/analisis/?player=${encodeURIComponent(playerName)}">
+          <strong>Ver estadísticas de las últimas partidas</strong>
+          <span>Consulta los datos procesados por OpenDota.</span>
+        </a>
+        <a class="button" href="/performance-coach/?player=${encodeURIComponent(playerName)}">
+          <strong>Analizar tu rendimiento</strong>
+          <span>Revisa una partida y obtén tres prioridades concretas de mejora.</span>
+        </a>
+        <div class="member-tool upcoming">
+          <strong>Más opciones próximamente</strong>
+        </div>
+      </nav>
+      <p class="small"><a href="/">Volver a la página principal</a></p>
+    </main>
+    <script src="/members.js" defer></script>`);
 }
 
 function renderMembersPage(response, session) {
-  renderPage(response, "Miembros", `
-    <header class="member-header">
-      <a class="brand" href="/">RATOGER</a>
-      <div class="account">
-        <span>${escapeHtml(session.displayName)}</span>
-        <form action="/auth/logout" method="post"><button class="text-button" type="submit">Cerrar sesión</button></form>
-      </div>
-    </header>
-    <main class="panel">
-      <p class="eyebrow">Área privada</p>
-      <h1>Miembros</h1>
-      <p>El listado de miembros se incorporará más adelante.</p>
-      <p class="small">Para mostrar a todos los miembros habrá que añadir un bot de Discord.</p>
-      <a class="button secondary" href="/miembros">Volver al área de miembros</a>
-    </main>`);
+  renderMemberPage(response, session);
 }
 
 function cleanExpiredSessions() {

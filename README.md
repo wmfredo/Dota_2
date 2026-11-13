@@ -39,7 +39,11 @@ location / {
 }
 ```
 
-La página privada «Miembros» es provisional. Discord permite comprobar al usuario que inicia sesión, pero no recuperar el listado completo del servidor con esos permisos; para añadirlo habrá que crear un bot. Si alguien abandona el servidor, su sesión activa puede seguir funcionando hasta que caduque.
+La página privada de miembros da la bienvenida con el nombre de Discord y ofrece accesos a las estadísticas y al coach de rendimiento. Busca el rango de Dota 2 en OpenDota con una coincidencia exacta del nombre; si no hay perfil o rango público coincidente, lo indica sin impedir el uso de las herramientas. El nombre de Discord debe coincidir con el nombre visible en OpenDota para precargar los datos.
+
+«Ver estadísticas de las últimas partidas» abre la herramienta de [analisis](./analisis/), precargada con ese nombre. «Analizar tu rendimiento» abre el [coach](./performance-coach/): carga las últimas diez partidas procesadas, permite elegir una y presenta exactamente tres focos con evidencia y acciones verificables. El coach usa heurísticas transparentes sobre los datos devueltos por OpenDota, no un servicio de IA, y señala cuándo faltan datos o contexto.
+
+Discord permite comprobar al usuario que inicia sesión, pero no recuperar el listado completo del servidor con esos permisos; para añadirlo habrá que crear un bot. Si alguien abandona el servidor, su sesión activa puede seguir funcionando hasta que caduque.
 
 ## Ejecutar localmente
 
